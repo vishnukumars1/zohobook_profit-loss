@@ -710,6 +710,15 @@
                       <hr>
                   {% endif %}
 
+                  {% if allmodules.reports == 1  %}
+                      <a href="{% url 'horizontal_profitloss' %}" class="d-flex align-items-center gap-2 dropdown-item">
+                          <div class="d-flex">
+                              <p class="mb-0 fs-3">Horizontal Profit & Loss</p>
+                          </div>
+                      </a>
+                      <hr>
+                  {% endif %}
+
                   {% if allmodules.reports == 1 %}
                   <a href="{% url 'all_transactions' %}" class="d-flex align-items-center gap-2 dropdown-item">
                     <div class="d-flex">

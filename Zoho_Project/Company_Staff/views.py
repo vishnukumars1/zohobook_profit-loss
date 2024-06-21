@@ -61638,6 +61638,66 @@ def profit_loss(request):
     if log_details.user_type == 'Company':
         dash_details = CompanyDetails.objects.get(login_details=log_details)
         cmp = dash_details
+    
+    if request.method == 'POST':
+        start_date_str = request.POST.get('from_date')
+        end_date_str = request.POST.get('to_date')
+
+        if start_date_str and end_date_str:
+            # Convert date strings to datetime objects
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+
+            allmodules= ZohoModules.objects.get(company=cmp,status='New')
+            opening_stock = Items.objects.filter(company=dash_details.id)
+            total_opening_stock = Items.objects.filter(company=dash_details.id,date__range=(start_date, end_date)).aggregate(total_opening_stock=Sum('opening_stock'))['total_opening_stock'] or 0
+
+            purchase_account = Recurring_bills.objects.filter(company=dash_details.id,rec_bill_date__range=(start_date, end_date))
+            total_recurring_bill = Recurring_bills.objects.filter(company=dash_details.id,rec_bill_date__range=(start_date, end_date)).aggregate(total_recurring_bill=Sum('total'))['total_recurring_bill'] or 0
+            purchase_bill_account = Bill.objects.filter(Company=dash_details.id,Bill_Date__range=(start_date, end_date))
+            total_bill = Bill.objects.filter(Company=dash_details.id,Bill_Date__range=(start_date, end_date)).aggregate(total_bill=Sum('Grand_Total'))['total_bill'] or 0
+            total_purchase_account = int(total_recurring_bill) + int(total_bill)
+
+
+            indirect_expenses = Expense.objects.filter(company=dash_details.id,date__range=(start_date, end_date))
+            total_expenses = Expense.objects.filter(company=dash_details.id,date__range=(start_date, end_date)).aggregate(total_expenses=Sum('amount'))['total_expenses'] or 0
+            
+            total_invoice = invoice.objects.filter(company=dash_details.id,date__range=(start_date, end_date)).aggregate(total_invoice=Sum('grand_total'))['total_invoice'] or 0
+            total_recurring_invoice = RecurringInvoice.objects.filter(company=dash_details.id,start_date__range=(start_date, end_date)).aggregate(total_recurring_invoice=Sum('grandtotal'))['total_recurring_invoice'] or 0
+            total_retainer_invoice = RetainerInvoice.objects.filter(company=dash_details.id,retainer_invoice_date__range=(start_date, end_date)).aggregate(total_retainer_invoice=Sum('total_amount'))['total_retainer_invoice'] or 0
+            total_sales_account = int(total_invoice) + int(total_recurring_invoice) + int(total_retainer_invoice)
+
+            total_bill_discount = BillItems.objects.filter(Company=dash_details.id).aggregate(total_bill_discount=Sum('discount'))['total_bill_discount'] or 0
+            total_recurring_discount = Reccurring_Invoice_item.objects.filter(company=dash_details.id).aggregate(total_recurring_discount=Sum('discount'))['total_recurring_discount'] or 0
+            total_indirect_income = int(total_bill_discount) + int(total_recurring_discount)
+
+            closing_stock = Items.objects.filter(company=dash_details.id,date__range=(start_date, end_date))
+            total_closing_stock = Items.objects.filter(company=dash_details.id,date__range=(start_date, end_date)).aggregate(total_closing_stock=Sum('current_stock'))['total_closing_stock'] or 0
+
+            total_profit =  int(total_opening_stock) + int(total_purchase_account) + int(total_expenses)
+            total_loss = int(total_sales_account) + int(total_indirect_income) + int(total_closing_stock)
+            difference = int(total_profit) - int(total_loss)
+
+
+            context = {
+                'cmp':cmp,
+                'allmodules':allmodules,
+                'opening_stock':opening_stock,
+                'total_opening_stock':total_opening_stock,
+                'total_purchase_account':total_purchase_account,
+                'indirect_expenses':indirect_expenses,
+                'total_expenses':total_expenses,
+                'total_sales_account':total_sales_account,
+                'total_indirect_income':total_indirect_income,
+                'total_closing_stock':total_closing_stock,
+                'closing_stock':closing_stock,
+                'total_loss':total_loss,
+                'total_profit':total_profit,
+                'difference':difference,
+                'start_date':start_date,
+                'end_date':end_date,
+            }
+            return render(request,'zohomodules/Reports/profit_loss.html',context)
 
     allmodules= ZohoModules.objects.get(company=cmp,status='New')
 
@@ -61650,11 +61710,215 @@ def profit_loss(request):
     total_bill = Bill.objects.filter(Company=dash_details.id).aggregate(total_bill=Sum('Grand_Total'))['total_bill'] or 0
     total_purchase_account = int(total_recurring_bill) + int(total_bill)
 
+
+    indirect_expenses = Expense.objects.filter(company=dash_details.id)
+    total_expenses = Expense.objects.filter(company=dash_details.id).aggregate(total_expenses=Sum('amount'))['total_expenses'] or 0
+
+    total_invoice = invoice.objects.filter(company=dash_details.id).aggregate(total_invoice=Sum('grand_total'))['total_invoice'] or 0
+    total_recurring_invoice = RecurringInvoice.objects.filter(company=dash_details.id).aggregate(total_recurring_invoice=Sum('grandtotal'))['total_recurring_invoice'] or 0
+    total_retainer_invoice = RetainerInvoice.objects.filter(company=dash_details.id).aggregate(total_retainer_invoice=Sum('total_amount'))['total_retainer_invoice'] or 0
+    total_sales_account = int(total_invoice) + int(total_recurring_invoice) + int(total_retainer_invoice)
+
+    total_bill_discount = BillItems.objects.filter(Company=dash_details.id).aggregate(total_bill_discount=Sum('discount'))['total_bill_discount'] or 0
+    total_recurring_discount = Reccurring_Invoice_item.objects.filter(company=dash_details.id).aggregate(total_recurring_discount=Sum('discount'))['total_recurring_discount'] or 0
+    total_indirect_income = int(total_bill_discount) + int(total_recurring_discount)
+
+    closing_stock = Items.objects.filter(company=dash_details.id)
+    total_closing_stock = Items.objects.filter(company=dash_details.id).aggregate(total_closing_stock=Sum('current_stock'))['total_closing_stock'] or 0
+
+    total_profit =  int(total_opening_stock) + int(total_purchase_account) + int(total_expenses)
+    total_loss = int(total_sales_account) + int(total_indirect_income) + int(total_closing_stock)
+    difference = int(total_profit) - int(total_loss)
+
+
     context = {
         'cmp':cmp,
         'allmodules':allmodules,
         'opening_stock':opening_stock,
         'total_opening_stock':total_opening_stock,
         'total_purchase_account':total_purchase_account,
+        'indirect_expenses':indirect_expenses,
+        'total_expenses':total_expenses,
+        'total_sales_account':total_sales_account,
+        'total_indirect_income':total_indirect_income,
+        'total_closing_stock':total_closing_stock,
+        'closing_stock':closing_stock,
+        'total_loss':total_loss,
+        'total_profit':total_profit,
+        'difference':difference,
     }
     return render(request,'zohomodules/Reports/profit_loss.html',context)
+
+
+def profit_loss_mail(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Staff':
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            cmp = dash_details.company
+        if log_details.user_type == 'Company':
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            cmp = dash_details
+
+        if request.method == 'POST':
+            emails_string = request.POST['email_ids']
+
+                
+            emails_list = [email.strip() for email in emails_string.split(',')]
+            email_message = request.POST['email_message']
+            start_date_str = request.POST.get('from_date')
+            end_date_str = request.POST.get('to_date')
+
+            if start_date_str and end_date_str:
+                # Convert date strings to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+
+                allmodules= ZohoModules.objects.get(company=cmp,status='New')
+                opening_stock = Items.objects.filter(company=dash_details.id)
+                total_opening_stock = Items.objects.filter(company=dash_details.id,date__range=(start_date, end_date)).aggregate(total_opening_stock=Sum('opening_stock'))['total_opening_stock'] or 0
+
+                purchase_account = Recurring_bills.objects.filter(company=dash_details.id,rec_bill_date__range=(start_date, end_date))
+                total_recurring_bill = Recurring_bills.objects.filter(company=dash_details.id,rec_bill_date__range=(start_date, end_date)).aggregate(total_recurring_bill=Sum('total'))['total_recurring_bill'] or 0
+                purchase_bill_account = Bill.objects.filter(Company=dash_details.id,Bill_Date__range=(start_date, end_date))
+                total_bill = Bill.objects.filter(Company=dash_details.id,Bill_Date__range=(start_date, end_date)).aggregate(total_bill=Sum('Grand_Total'))['total_bill'] or 0
+                total_purchase_account = int(total_recurring_bill) + int(total_bill)
+
+
+                indirect_expenses = Expense.objects.filter(company=dash_details.id,date__range=(start_date, end_date))
+                total_expenses = Expense.objects.filter(company=dash_details.id,date__range=(start_date, end_date)).aggregate(total_expenses=Sum('amount'))['total_expenses'] or 0
+                
+                total_invoice = invoice.objects.filter(company=dash_details.id,date__range=(start_date, end_date)).aggregate(total_invoice=Sum('grand_total'))['total_invoice'] or 0
+                total_recurring_invoice = RecurringInvoice.objects.filter(company=dash_details.id,start_date__range=(start_date, end_date)).aggregate(total_recurring_invoice=Sum('grandtotal'))['total_recurring_invoice'] or 0
+                total_retainer_invoice = RetainerInvoice.objects.filter(company=dash_details.id,retainer_invoice_date__range=(start_date, end_date)).aggregate(total_retainer_invoice=Sum('total_amount'))['total_retainer_invoice'] or 0
+                total_sales_account = int(total_invoice) + int(total_recurring_invoice) + int(total_retainer_invoice)
+
+                total_bill_discount = BillItems.objects.filter(Company=dash_details.id).aggregate(total_bill_discount=Sum('discount'))['total_bill_discount'] or 0
+                total_recurring_discount = Reccurring_Invoice_item.objects.filter(company=dash_details.id).aggregate(total_recurring_discount=Sum('discount'))['total_recurring_discount'] or 0
+                total_indirect_income = int(total_bill_discount) + int(total_recurring_discount)
+
+                closing_stock = Items.objects.filter(company=dash_details.id,date__range=(start_date, end_date))
+                total_closing_stock = Items.objects.filter(company=dash_details.id,date__range=(start_date, end_date)).aggregate(total_closing_stock=Sum('current_stock'))['total_closing_stock'] or 0
+
+                total_profit =  int(total_opening_stock) + int(total_purchase_account) + int(total_expenses)
+                total_loss = int(total_sales_account) + int(total_indirect_income) + int(total_closing_stock)
+                difference = int(total_profit) - int(total_loss)
+
+
+                context = {
+                    'cmp':cmp,
+                    'allmodules':allmodules,
+                    'opening_stock':opening_stock,
+                    'total_opening_stock':total_opening_stock,
+                    'total_purchase_account':total_purchase_account,
+                    'indirect_expenses':indirect_expenses,
+                    'total_expenses':total_expenses,
+                    'total_sales_account':total_sales_account,
+                    'total_indirect_income':total_indirect_income,
+                    'total_closing_stock':total_closing_stock,
+                    'closing_stock':closing_stock,
+                    'total_loss':total_loss,
+                    'total_profit':total_profit,
+                    'difference':difference,
+                    'start_date':start_date,
+                    'end_date':end_date,
+                }
+            
+
+            allmodules= ZohoModules.objects.get(company=cmp,status='New')
+
+            opening_stock = Items.objects.filter(company=dash_details.id)
+            total_opening_stock = Items.objects.filter(company=dash_details.id).aggregate(total_opening_stock=Sum('opening_stock'))['total_opening_stock'] or 0
+
+            purchase_account = Recurring_bills.objects.filter(company=dash_details.id)
+            total_recurring_bill = Recurring_bills.objects.filter(company=dash_details.id).aggregate(total_recurring_bill=Sum('total'))['total_recurring_bill'] or 0
+            purchase_bill_account = Bill.objects.filter(Company=dash_details.id)
+            total_bill = Bill.objects.filter(Company=dash_details.id).aggregate(total_bill=Sum('Grand_Total'))['total_bill'] or 0
+            total_purchase_account = int(total_recurring_bill) + int(total_bill)
+
+
+            indirect_expenses = Expense.objects.filter(company=dash_details.id)
+            total_expenses = Expense.objects.filter(company=dash_details.id).aggregate(total_expenses=Sum('amount'))['total_expenses'] or 0
+
+            total_invoice = invoice.objects.filter(company=dash_details.id).aggregate(total_invoice=Sum('grand_total'))['total_invoice'] or 0
+            total_recurring_invoice = RecurringInvoice.objects.filter(company=dash_details.id).aggregate(total_recurring_invoice=Sum('grandtotal'))['total_recurring_invoice'] or 0
+            total_retainer_invoice = RetainerInvoice.objects.filter(company=dash_details.id).aggregate(total_retainer_invoice=Sum('total_amount'))['total_retainer_invoice'] or 0
+            total_sales_account = int(total_invoice) + int(total_recurring_invoice) + int(total_retainer_invoice)
+
+            total_bill_discount = BillItems.objects.filter(Company=dash_details.id).aggregate(total_bill_discount=Sum('discount'))['total_bill_discount'] or 0
+            total_recurring_discount = Reccurring_Invoice_item.objects.filter(company=dash_details.id).aggregate(total_recurring_discount=Sum('discount'))['total_recurring_discount'] or 0
+            total_indirect_income = int(total_bill_discount) + int(total_recurring_discount)
+
+            closing_stock = Items.objects.filter(company=dash_details.id)
+            total_closing_stock = Items.objects.filter(company=dash_details.id).aggregate(total_closing_stock=Sum('current_stock'))['total_closing_stock'] or 0
+
+            total_profit =  int(total_opening_stock) + int(total_purchase_account) + int(total_expenses)
+            total_loss = int(total_sales_account) + int(total_indirect_income) + int(total_closing_stock)
+            difference = int(total_profit) - int(total_loss)
+
+
+            context = {
+                'cmp':cmp,
+                'allmodules':allmodules,
+                'opening_stock':opening_stock,
+                'total_opening_stock':total_opening_stock,
+                'total_purchase_account':total_purchase_account,
+                'indirect_expenses':indirect_expenses,
+                'total_expenses':total_expenses,
+                'total_sales_account':total_sales_account,
+                'total_indirect_income':total_indirect_income,
+                'total_closing_stock':total_closing_stock,
+                'closing_stock':closing_stock,
+                'total_loss':total_loss,
+                'total_profit':total_profit,
+                'difference':difference,
+            }
+
+
+            template_path = 'zohomodules/Reports/profit_loss_pdf.html'
+            template = get_template(template_path)
+
+            html  = template.render(context)
+            print('for loop executed')
+            for i in emails_list:
+                print(i)
+            result = BytesIO()
+
+            pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+            pdf = result.getvalue()
+                        
+            filename = f'Profit & Loss Report'
+            subject = f"Profit & Loss Report"
+            # from django.core.mail import EmailMessage as EmailMsg
+            email = EmailMsg(subject, f"Hi,\nPlease find the attached Profit & Loss Report. \n{email_message}\n\n--\nRegards,\n{cmp.company_name}\n{cmp.address}\n{cmp.state} - {cmp.country}\n{cmp.contact}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+            email.attach(filename, pdf, "application/pdf")
+            email.send(fail_silently=False)
+
+            return redirect('profit_loss')
+        return redirect('profit_loss')
+
+
+#--------------------Horizontal Profit & Loss ------------------------------
+
+def horizontal_profit_loss(request):
+    if 'login_id' in request.session:
+        login_id = request.session['login_id']
+    else:
+        return redirect('/')
+    log_details= LoginDetails.objects.get(id=login_id)
+    if log_details.user_type == 'Staff':
+        dash_details = StaffDetails.objects.get(login_details=log_details)
+        cmp = dash_details.company
+    if log_details.user_type == 'Company':
+        dash_details = CompanyDetails.objects.get(login_details=log_details)
+        cmp = dash_details
+
+    allmodules= ZohoModules.objects.get(company=cmp,status='New')
+
+    context = {
+        'cmp':cmp,
+        'allmodules':allmodules,
+    }
+
+    return render(request,'zohomodules/Reports/horizontal_profit_loss.html',context)

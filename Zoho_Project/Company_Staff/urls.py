@@ -1171,6 +1171,10 @@ urlpatterns = [
 
     #================================Profit & Loss==============================
     path('profit_loss',views.profit_loss,name='profit_loss'),
+    path('profit_loss_mail',views.profit_loss_mail,name='profit_loss_mail'),
+
+    #================================Horizontal Profit & Loss==============================
+    path('horizontal_profit_loss',views.horizontal_profit_loss,name='horizontal_profitloss'),
     
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
 ]
