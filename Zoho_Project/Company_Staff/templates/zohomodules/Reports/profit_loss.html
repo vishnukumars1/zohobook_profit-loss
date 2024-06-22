@@ -193,6 +193,12 @@
     .expanded-row {
         background-color: #f0f0f0; /* Background color for expanded row */
     }
+
+    td:empty {
+  visibility: hidden;
+}
+
+
 </style>
 
 <body>
@@ -200,12 +206,12 @@
         <div class="container-fluid ">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb text-light">
-                    <li class="breadcrumb-item" aria-current="page">PROFIT & LOSS</li>
+                    <li class="breadcrumb-item" aria-current="page">PROFIT & LOSS A/C</li>
                 </ol>
             </nav>
             <div>
                 <div class=" mt-lg-4 mt-2 rounded p-4" style="background-color: rgb(0, 0, 0);color: white;">
-                    <h1 class="text-light">PROFIT & LOSS</h1>
+                    <h1 class="text-light">PROFIT & LOSS A/C</h1>
                     <br>
 
                     <div class="row  ">
@@ -299,7 +305,7 @@
                                                     <div class="col-12">
                                                         <center class="h5 text-white"><b>{{cmp.company_name}} company</b>
                                                         </center>
-                                                        <center class="h3 text-white"><b>PROFIT & LOSS</b></center>
+                                                        <center class="h3 text-white"><b>PROFIT & LOSS A/C</b></center>
                                                         {% if start_date and end_date %}
                                                         <center class="h6 text-white">{{start_date}} TO {{end_date}}
                                                         </center>
@@ -308,13 +314,16 @@
                                                     <!-- <div class="col-md-4 d-flex justify-content-end"></div> -->
                                                 </div>
                                                 <div class="row px-1 py-1">
-                                                    <div class="col-6">
+                                                    <div class="col-12">
 
                                                         <section class="product-area mt-2">
                                                             <table class="table table-responsive-md mt-4 table-hover"
                                                                 id="reportTable"  id="myTable">
                                                                 <thead>
                                                                     <tr>
+                                                                        <th class="text-center">PARTICULARS </th>
+                                                                        <th class="text-center">AMOUNT</th>
+                                                                        <th class="text-center">AMOUNT</th>
                                                                         <th class="text-center">PARTICULARS </th>
                                                                         <th class="text-center">AMOUNT</th>
                                                                         <th class="text-center">AMOUNT</th>
@@ -325,6 +334,25 @@
                                                                         <td>OPENING STOCK</td>
                                                                         <td class="text-center"></td>
                                                                         <td class="text-center">{{ total_opening_stock|default:0|floatformat:2 }}</td>
+                                                                        <td>SALES ACCOUNT</td>
+                                                                        <td class="text-center"></td>
+                                                                        <td class="text-center">{{ total_sales_account|default:0|floatformat:2 }}</td>
+
+                                                                        <tr class="hidden child-rows" style="opacity: 0.7;font-size: small;">
+                                                                            <td class="empty"></td>
+                                                                            <td class="empty"></td>
+                                                                            <td class="empty"></td>
+                                                                            <td >SALES</td>
+                                                                            <td class="text-center">{{ total_sales_account|default:0|floatformat:2 }}</td>
+                                                                            <td class="text-center"></td>
+                                                                           
+                                                                        </tr>
+                                                                        <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
+                                                                            <td>SALES BILLS TO MAKE</td>
+                                                                            <td class="text-center"></td>
+                                                                            <td class="text-center"></td>
+                                                                            
+                                                                        </tr>
                                                                       
                                                                     </tr>
                                                                     {% for i in opening_stock %}
@@ -374,6 +402,12 @@
                                                                     </tr>
                                                                     {% endfor %}
 
+                                                                    <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
+                                                                        <td>DISCOUNT PAID</td>
+                                                                        <td class="text-center">{{ total_discount_paid|default:0|floatformat:2 }}</td>
+                                                                        <td class="text-center"></td>
+                                                                    </tr>
+
                                                                     {% if total_profit < total_loss %}
                                                                     <tr style="font-weight: 600;">
                                                                         <td>NET PROFIT</td>
@@ -401,49 +435,11 @@
                                                                         {% endif %}
                                                                     </tr>
 
-                                                                </tbody>
-
-
-                                                            </table>
-
-                                                            
-                                                        </section>
-                                                    
-
-
-                                                    </div>
-
-                                                    <div class="col-6">
-
-                                                        <section class="product-area mt-2">
-                                                            <table class="table table-responsive-md mt-4 table-hover"
-                                                                id="reportTable"  id="myTable">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th class="text-center">PARTICULARS </th>
-                                                                        <th class="text-center">AMOUNT</th>
-                                                                        <th class="text-center">AMOUNT</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
                                                                     <tr class="parent-row" style="font-weight: 600;">
-                                                                        <td>SALES ACCOUNT</td>
-                                                                        <td class="text-center"></td>
-                                                                        <td class="text-center">{{ total_sales_account|default:0|floatformat:2 }}</td>
+                                                                       
                                                                       
                                                                     </tr>
-                                                                    <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
-                                                                        <td >SALES</td>
-                                                                        <td class="text-center">{{ total_sales_account|default:0|floatformat:2 }}</td>
-                                                                        <td class="text-center"></td>
-                                                                       
-                                                                    </tr>
-                                                                    <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
-                                                                        <td>SALES BILLS TO MAKE</td>
-                                                                        <td class="text-center"></td>
-                                                                        <td class="text-center"></td>
-                                                                        
-                                                                    </tr>
+                                                                   
 
                                                                     <tr class="parent-row" style="font-weight: 600;">
 
@@ -453,6 +449,11 @@
 
                                                                     </tr>
 
+                                                                    <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
+                                                                        <td>DISCOUNT RECEIVED</td>
+                                                                        <td class="text-center">{{ total_indirect_income|default:0|floatformat:2 }}</td>
+                                                                        <td class="text-center"></td>
+                                                                    </tr>
                                                                     <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
                                                                         <td>INTEREST RECEIVED</td>
                                                                         <td class="text-center"></td>
@@ -495,7 +496,7 @@
                                                                     {% endif %}
 
                                                                     <tr style="font-weight: 600;font-size: x-large;">
-                                                                        <td >TOTAL</td>
+                                                                        <td >Total</td>
                                                                         <td class="text-center"></td>
                                                                         {% if total_loss > total_profit %}
                                                                         <td class="text-center">{{total_loss|default:0|floatformat:2}}</td>
@@ -530,7 +531,7 @@
                         <div class="modal-dialog">
                             <div class="modal-content" style="background-color: #3b3b3b;">
                                 <div class="modal-header">
-                                    <h3 class="modal-title text-light" id="exampleModalLabel">Share Profit & Loss</h3>
+                                    <h3 class="modal-title text-light" id="exampleModalLabel">Share Profit & Loss A/C</h3>
                                     <button type="button" class="btn btn-danger close px-2 py-0" data-bs-dismiss="modal"
                                         aria-label="Close">
                                         <span aria-hidden="true" style="font-size: x-large;">&times;</span>
@@ -661,7 +662,7 @@
                             var opt =
                             {
                                 margin: [0.5, 0.3, 0.3, 0.5],
-                                filename: 'Report_Profit_&_Loss',
+                                filename: 'Report_Profit_&_Loss_A/C',
                                 image: { type: 'jpeg', quality: 0.98 },
                                 html2canvas: { scale: 2 },
                                 jsPDF: { unit: 'cm', format: 'letter', orientation: 'portrait' }
@@ -688,7 +689,7 @@
                             const ws = XLSX.utils.table_to_sheet(Table);
                             const wb = XLSX.utils.book_new();
                             XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-                            XLSX.writeFile(wb, "Report_Profit_&_Loss.xlsx");
+                            XLSX.writeFile(wb, "Report_Profit_&_Loss_A/C.xlsx");
                         }
 
                         let sortOrder = false; // false for ascending, true for descending
@@ -731,7 +732,7 @@
         row.addEventListener('click', function() {
             // Toggle visibility of all next rows with class 'child-row'
             let nextRows = this.nextElementSibling;
-            while (nextRows && nextRows.classList.contains('child-row')) {
+            while (nextRows && nextRows.classList.contains('child-rows')) {
                 nextRows.classList.toggle('hidden');
                 nextRows = nextRows.nextElementSibling;
             }

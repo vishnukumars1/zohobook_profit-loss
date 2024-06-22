@@ -154,6 +154,12 @@
                                     </tr>
                                     {% endfor %}
 
+                                    <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
+                                        <td>DISCOUNT PAID</td>
+                                        <td class="text-center">{{ total_discount_paid|default:0|floatformat:2 }}</td>
+                                        <td class="text-center"></td>
+                                    </tr>
+
                                     {% if total_profit < total_loss %}
                                     <tr style="font-weight: 600;">
                                         <td>NET PROFIT</td>
@@ -233,6 +239,11 @@
 
                                     </tr>
 
+                                    <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
+                                        <td>DISCOUNT RECEIVED</td>
+                                        <td class="text-center">{{ total_indirect_income|default:0|floatformat:2 }}</td>
+                                        <td class="text-center"></td>
+                                    </tr>
                                     <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
                                         <td>INTEREST RECEIVED</td>
                                         <td class="text-center"></td>

@@ -200,12 +200,12 @@
         <div class="container-fluid ">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb text-light">
-                    <li class="breadcrumb-item" aria-current="page">HORIZONTAL PROFIT & LOSS</li>
+                    <li class="breadcrumb-item" aria-current="page">HORIZONTAL PROFIT & LOSS A/C</li>
                 </ol>
             </nav>
             <div>
                 <div class=" mt-lg-4 mt-2 rounded p-4" style="background-color: rgb(0, 0, 0);color: white;">
-                    <h1 class="text-light">HORIZONTAL PROFIT & LOSS</h1>
+                    <h1 class="text-light">HORIZONTAL PROFIT & LOSS A/C</h1>
                     <br>
 
                     <div class="row  ">
@@ -299,7 +299,7 @@
                                                     <div class="col-12">
                                                         <center class="h5 text-white"><b>{{cmp.company_name}} company</b>
                                                         </center>
-                                                        <center class="h3 text-white"><b>HORIZONTAL PROFIT & LOSS</b></center>
+                                                        <center class="h3 text-white"><b>HORIZONTAL PROFIT & LOSS A/C</b></center>
                                                         {% if start_date and end_date %}
                                                         <center class="h6 text-white">{{start_date}} TO {{end_date}}
                                                         </center>
@@ -327,16 +327,16 @@
                                                                         </td>
                                                                     </tr>
 
-                                                                    <tr class="parent-row" style="font-weight: 600;">
+                                                                    <tr class="parent-row" style="font-weight: 600;opacity: 0.8;">
                                                                         <td>SALES ACCOUNT</td>
                                                                         <td class="text-center"></td>
-                                                                        <td class="text-center">{{ total_opening_stock|default:0|floatformat:2 }}</td>
+                                                                        <td class="text-center">{{ total_sales_account|default:0|floatformat:2 }}</td>
                                                                       
                                                                     </tr>
                                                                     
                                                                     <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
                                                                         <td >SALES</td>
-                                                                        <td class="text-center">{{ i.opening_stock }}</td>
+                                                                        <td class="text-center">{{ total_sales_account|default:0|floatformat:2 }}</td>
                                                                         <td class="text-center"></td>
                                                                        
                                                                     </tr>
@@ -348,37 +348,45 @@
                                                                        
                                                                     </tr>
 
-                                                                    <tr class="parent-row" style="font-weight: 600;">
+                                                                    <tr class="parent-row" style="font-weight: 600;opacity: 0.8;">
 
                                                                         <td>COST OF SALES</td>
                                                                         <td class="text-center"></td>
-                                                                        <td class="text-center">{{ total_purchase_account|default:0|floatformat:2 }}</td>
+                                                                        <td class="text-center">{{ total_cost_of_sales|default:0|floatformat:2 }}</td>
 
                                                                     </tr>
 
                                                                     <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
                                                                         <td>OPENING STOCK</td>
-                                                                        <td class="text-center">{{ total_purchase_account|default:0|floatformat:2 }}</td>
+                                                                        <td class="text-center">{{ total_opening_stock|default:0|floatformat:2 }}</td>
                                                                         <td class="text-center"></td>
                                                                     </tr>
 
                                                                     <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
                                                                         <td>ADD: Purchase Accounts</td>
-                                                                        <td class="text-center"></td>
+                                                                        <td class="text-center">{{ total_purchase_account|default:0|floatformat:2 }}</td>
                                                                         <td class="text-center"></td>
                                                                     </tr>
 
                                                                     <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
                                                                         <td>LESS: Closing Stock</td>
-                                                                        <td class="text-center"></td>
+                                                                        <td class="text-center">{{ total_closing_stock|default:0|floatformat:2 }}</td>
                                                                         <td class="text-center"></td>
                                                                     </tr>
                                                                     
+                                                                    {% if total_sales_account < total_cost_of_sales %}
                                                                     <tr style="font-weight: 600;font-size: larger;">
-                                                                        <td >GROSS</td>
+                                                                        <td >GROSS LOSS</td>
                                                                         <td class="text-center"></td>
-                                                                        <td class="text-center"></td>
+                                                                        <td class="text-center">{{ difference|default:0|floatformat:2 }}</td>
                                                                     </tr>
+                                                                    {% else %}
+                                                                    <tr style="font-weight: 600;font-size: larger;">
+                                                                        <td>GROSS PROFIT</td>
+                                                                        <td class="text-center"></td>
+                                                                        <td class="text-center">{{ difference|default:0|floatformat:2 }}</td>
+                                                                    </tr>
+                                                                    {% endif %}
 
                                                                     <tr>
                                                                         <td colspan="3" style="font-weight: 600;font-size: large;">
@@ -386,33 +394,38 @@
                                                                         </td>
                                                                     </tr>
 
-                                                                    <tr class="parent-row" style="font-weight: 600;">
+                                                                    <tr class="parent-row" style="font-weight: 600;opacity: 0.8;">
 
                                                                         <td>INDIRECT INCOMES</td>
                                                                         <td class="text-center"></td>
-                                                                        <td class="text-center">{{ total_expenses|default:0|floatformat:2 }}</td>
+                                                                        <td class="text-center">{{ total_indirect_income|default:0|floatformat:2 }}</td>
 
                                                                     </tr>
 
                                                                     <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
+                                                                        <td>DISCOUNT RECEIVED</td>
+                                                                        <td class="text-center">{{ total_indirect_income|default:0|floatformat:2 }}</td>
+                                                                        <td class="text-center"></td>
+                                                                    </tr>
+                                                                    <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
                                                                         <td>INTEREST RECEIVED</td>
-                                                                        <td class="text-center">{{ e.amount }}</td>
+                                                                        <td class="text-center"></td>
                                                                         <td class="text-center"></td>
                                                                     </tr>
                                                                     
                                                                     <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
                                                                         <td>LOADING UNLOADING</td>
-                                                                        <td class="text-center">{{ e.amount }}</td>
+                                                                        <td class="text-center"></td>
                                                                         <td class="text-center"></td>
                                                                     </tr>
                                                                     
                                                                     <tr>
-                                                                        <td>--</td>
-                                                                        <td>--</td>
-                                                                        <td>--</td>
+                                                                        <td class="text-center">--</td>
+                                                                        <td class="text-center">--</td>
+                                                                        <td class="text-center" style="font-weight: 600;font-size: large;">{{ total|default:0|floatformat:2 }}</td>
                                                                     </tr>
 
-                                                                    <tr class="parent-row" style="font-weight: 600;">
+                                                                    <tr class="parent-row" style="font-weight: 600;opacity: 0.8;">
 
                                                                         <td>INDIRECT EXPENSES</td>
                                                                         <td class="text-center"></td>
@@ -420,17 +433,33 @@
 
                                                                     </tr>
 
+                                                                    {% for e in indirect_expenses %}
                                                                     <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
-                                                                        <td>INTEREST RECEIVED</td>
+                                                                        <td>{{ e.account }}</td>
                                                                         <td class="text-center">{{ e.amount }}</td>
                                                                         <td class="text-center"></td>
                                                                     </tr>
+                                                                    {% endfor %}
 
-                                                                    <tr style="font-weight: 600;font-size: larger;">
-                                                                        <td>NET</td>
-                                                                        <td class="text-center">--</td>
-                                                                        <td class="text-center">--</td>
+                                                                    <tr class="hidden child-row" style="opacity: 0.7;font-size: small;">
+                                                                        <td>DISCOUNT PAID</td>
+                                                                        <td class="text-center">{{ total_discount_paid|default:0|floatformat:2 }}</td>
+                                                                        <td class="text-center"></td>
                                                                     </tr>
+
+                                                                    {% if total < total_expenses %}
+                                                                    <tr style="font-weight: 600;font-size: larger;">
+                                                                        <td>NET LOSS</td>
+                                                                        <td class="text-center"></td>
+                                                                        <td class="text-center">{{ net_difference|default:0|floatformat:2 }}</td>
+                                                                    </tr>
+                                                                    {% else %}
+                                                                    <tr style="font-weight: 600;font-size: larger;">
+                                                                        <td>NET PROFIT</td>
+                                                                        <td class="text-center"></td>
+                                                                        <td class="text-center">{{ net_difference|default:0|floatformat:2 }}</td>
+                                                                    </tr>
+                                                                    {% endif %}
                                                                     
 
                                                                 </tbody>
@@ -457,14 +486,14 @@
                         <div class="modal-dialog">
                             <div class="modal-content" style="background-color: #3b3b3b;">
                                 <div class="modal-header">
-                                    <h3 class="modal-title text-light" id="exampleModalLabel">Share Profit & Loss</h3>
+                                    <h3 class="modal-title text-light" id="exampleModalLabel">Share Profit & Loss A/C</h3>
                                     <button type="button" class="btn btn-danger close px-2 py-0" data-bs-dismiss="modal"
                                         aria-label="Close">
                                         <span aria-hidden="true" style="font-size: x-large;">&times;</span>
                                     </button>
                                 </div>
                                 <div class="modal-body mx-3" style="background-color: #000;">
-                                    <form action="{% url 'profit_loss_mail' %}" method="POST" id="share_to_email_form"
+                                    <form action="{% url 'horizontal_profit_loss_mail' %}" method="POST" id="share_to_email_form"
                                         class="needs-validation" novalidate enctype="multipart/form-data">
                                         {%csrf_token%}
                                         <div class="form-group">
@@ -588,7 +617,7 @@
                             var opt =
                             {
                                 margin: [0.5, 0.3, 0.3, 0.5],
-                                filename: 'Report_Profit_&_Loss',
+                                filename: 'Report_Horizontal_Profit_&_Loss_A/C',
                                 image: { type: 'jpeg', quality: 0.98 },
                                 html2canvas: { scale: 2 },
                                 jsPDF: { unit: 'cm', format: 'letter', orientation: 'portrait' }
@@ -615,7 +644,7 @@
                             const ws = XLSX.utils.table_to_sheet(Table);
                             const wb = XLSX.utils.book_new();
                             XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-                            XLSX.writeFile(wb, "Report_Profit_&_Loss.xlsx");
+                            XLSX.writeFile(wb, "Report_Horizontal_Profit_&_Loss_A/C.xlsx");
                         }
 
                         let sortOrder = false; // false for ascending, true for descending

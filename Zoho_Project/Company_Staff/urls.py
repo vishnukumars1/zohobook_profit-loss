@@ -1175,7 +1175,8 @@ urlpatterns = [
 
     #================================Horizontal Profit & Loss==============================
     path('horizontal_profit_loss',views.horizontal_profit_loss,name='horizontal_profitloss'),
-    
+    path('horizontal_profit_loss_mail',views.horizontal_profit_loss_mail,name='horizontal_profit_loss_mail'),
+    # End
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS)
